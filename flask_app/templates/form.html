@@ -1,0 +1,62 @@
+<!-- form.html -->
+<form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" id="file" style="display: none;">
+    <label for="file" style="cursor: pointer;">Choose File</label>
+    <button type="submit">Upload File</button>
+</form>
+<form id="toggleForm">
+    <label>
+        GSR:
+        <input type="checkbox" name="GSR" id="GSR">
+    </label><br>
+    <label>
+        FACET:
+        <input type="checkbox" name="FACET" id="FACET">
+    </label><br>
+    <label>
+        Pupil:
+        <input type="checkbox" name="Pupil" id="Pupil">
+    </label><br>
+    <label>
+        HeartRate:
+        <input type="checkbox" name="HeartRate" id="HeartRate">
+    </label><br>
+    <label>
+        graph:
+        <input type="checkbox" name="graph" id="graph">
+    </label><br>
+    <label>
+        save:
+        <input type="checkbox" name="save" id="save">
+    </label><br>
+    <label>
+        show:
+        <input type="checkbox" name="show" id="show">
+    </label><br>
+    <label>
+        eye_tracking:
+        <input type="checkbox" name="eye_tracking" id="eye_tracking">
+    </label><br>
+    <button type="button" onclick="execute()">Create Video</button>
+</form>
+<script>
+    function execute() {
+        var formData = new FormData();
+        formData.append('GSR', document.getElementById('GSR').checked ? 'True' : 'False');
+        formData.append('FACET', document.getElementById('FACET').checked ? 'True' : 'False');
+        formData.append('Pupil', document.getElementById('Pupil').checked ? 'True' : 'False');
+        formData.append('HeartRate', document.getElementById('HeartRate').checked ? 'True' : 'False');
+        formData.append('graph', document.getElementById('graph').checked ? 'True' : 'False');
+        formData.append('save', document.getElementById('save').checked ? 'True' : 'False');
+        formData.append('show', document.getElementById('show').checked ? 'True' : 'False');
+        formData.append('eye_tracking', document.getElementById('eye_tracking').checked ? 'True' : 'False');
+        
+        fetch('/execute', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    }
+</script>

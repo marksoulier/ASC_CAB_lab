@@ -1,0 +1,73 @@
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+
+#uploadForm {
+    margin-bottom: 30px;
+}
+
+#toggleForm {
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* style.css */
+.container {
+    display: flex;
+}
+
+.image {
+    flex: 1;
+}
+
+.image img {
+    max-width: 100%;
+    height: auto;
+}
+
+.explanation {
+    flex: 1;
+    padding: 20px;
+    text-align: left;
+}
+
+.explanation h2 {
+    margin-top: 0;
+}
+
+.explanation ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.explanation ul li {
+    margin-bottom: 10px;
+}

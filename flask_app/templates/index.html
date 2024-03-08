@@ -1,0 +1,23 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to iMotion Video Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Welcome to CAB Lab Video Tool</h1>
+    <p>Welcome to the CAB Lab Video Tool, a user-friendly interface designed to transform iMotion data into engaging video content.</p>
+    <p>The purpose of this website is to provide a seamless experience for users to input their iMotion data and generate a video output. With our tool, you can easily create videos that incorporate live data streams from iMotion devices.</p>
+    <p>Whether you're conducting research, analyzing human behavior, or simply exploring the possibilities of iMotion technology, our platform empowers you to visualize your data in a compelling and informative way.</p>
+    <p>Get started today and unlock the potential of your iMotion data!</p>
+    <hr>
+    <h2>Create Your Video</h2>
+    {% include 'form.html' %}
+    <hr>
+    <h2>Example of Video Creation Software</h2>
+    {% include 'example.html' %}
+</body>
+</html>
