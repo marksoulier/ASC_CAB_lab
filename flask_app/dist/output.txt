@@ -1,0 +1,8 @@
+GSR=True
+FACET=True
+Pupil=True
+HeartRate=False
+graph=False
+save=False
+show=False
+eye_tracking=False

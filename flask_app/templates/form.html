@@ -1,9 +1,45 @@
 <!-- form.html -->
-<form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" id="file" style="display: none;">
-    <label for="file" style="cursor: pointer;">Choose File</label>
-    <button type="submit">Upload File</button>
-</form>
+<div class="form-container">
+    <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+        <div class="file-upload-container">
+            <input type="file" name="file" id="file" style="display: none;" onchange="updateFileName()">
+            <label for="file" class="file-label">Choose File</label>
+            <span id="file-name" class="file-name"></span>
+        </div>
+        <button type="submit" class="upload-btn">Upload File</button>
+    </form>
+</div>
+
+<script>
+function updateFileName() {
+    var input = document.getElementById('file');
+    var fileNameSpan = document.getElementById('file-name');
+    var fileName = input.value.split('\\').pop(); // Extract the file name from the path
+    fileNameSpan.textContent = fileName; // Display the file name
+}
+</script>
+<hr>
+<h2>Uploaded File Categories</h2>
+<div id="file-categories">
+    {% if file_counts %}
+        <p>Content files: {{ file_counts.get('content', 0) }}</p>
+        <p>Data files: {{ file_counts.get('data', 0) }}</p>
+        <p>Other files: {{ file_counts.get('other', 0) }}</p>
+        
+        <h3>Sample Files</h3>
+        {% for category, files in file_categories.items() %}
+            <h4>{{ category.capitalize() }} Files</h4>
+            <ul>
+                {% for file in files %}
+                    <li>{{ file }}</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+</div>
+<hr>
+
+<h2>Execute Video Creation</h2>
 <form id="toggleForm">
     <label>
         GSR:

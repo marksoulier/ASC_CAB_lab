@@ -71,3 +71,49 @@ button:hover {
 .explanation ul li {
     margin-bottom: 10px;
 }
+
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column; /* Stack vertically */
+}
+
+.file-upload-container {
+    display: flex;
+    align-items: center; /* Center the label and file name vertically */
+    gap: 10px; /* Add some space between the label and the file name */ /* Space before the upload button */
+}
+
+.file-label {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    text-align: center;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.file-name {
+    font-size: 16px;
+}
+
+.upload-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.upload-btn:hover {
+    background-color: #218838;
+}
+
+input[type="file"] {
+    display: none;
+}

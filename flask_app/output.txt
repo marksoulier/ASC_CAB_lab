@@ -1,8 +1,0 @@
-GSR=False
-FACET=False
-Pupil=False
-HeartRate=False
-graph=False
-save=False
-show=False
-eye_tracking=True
