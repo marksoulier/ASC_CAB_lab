@@ -19,9 +19,11 @@ function updateFileName() {
 }
 </script>
 <hr>
-<h2>Uploaded File Categories</h2>
 <div id="file-categories">
     {% if file_counts %}
+        <h2>Data Cleaning complete you can find cleaned data in the folder you launched the app.</h2>
+        <hr>
+        <h2>Uploaded File Categories</h2>
         <p>Content files: {{ file_counts.get('content', 0) }}</p>
         <p>Data files: {{ file_counts.get('data', 0) }}</p>
         <p>Other files: {{ file_counts.get('other', 0) }}</p>
@@ -35,12 +37,39 @@ function updateFileName() {
                 {% endfor %}
             </ul>
         {% endfor %}
+        <h2>Participants {{ participant_count }}</h2>
+        <hr>
+        <h2>Content</h2>
+        <div>
+            {% for content_name, file_path in content.items() %}
+                <p>{{ content_name }}: {{ file_path }}</p>
+            {% endfor %}
+        </div>
+
+        <hr>
+        <h2>Data Files</h2>
+        <p>Eye Tracked Data: {{ eye_tracked_data }}</p>
+        <p>GSR Data: {{ GSR_data }}</p>
+        <p>FACET Data: {{ FACET_data }}</p>
+
+        <hr>
     {% endif %}
 </div>
-<hr>
 
-<h2>Execute Video Creation</h2>
-<form id="toggleForm">
+<h2>Create Custom Video</h2>
+{% if participants %}
+<form id="toggleForm" method="POST" action="/execute">
+    <label>
+        Participant:
+        <select name="participant" id="participant">
+                <!-- Set the first participant as the default option -->
+                <option value="{{ participants[0] }}">{{ participants[0] }}</option>
+                {% for participant in participants[1:] %}
+                    <!-- Loop through the rest of the participants, starting from the second one -->
+                    <option value="{{ participant }}">{{ participant }}</option>
+                {% endfor %}
+        </select>
+    </label><br>
     <label>
         GSR:
         <input type="checkbox" name="GSR" id="GSR">
@@ -75,6 +104,7 @@ function updateFileName() {
     </label><br>
     <button type="button" onclick="execute()">Create Video</button>
 </form>
+{% endif %}
 <script>
     function execute() {
         var formData = new FormData();
@@ -86,7 +116,8 @@ function updateFileName() {
         formData.append('save', document.getElementById('save').checked ? 'True' : 'False');
         formData.append('show', document.getElementById('show').checked ? 'True' : 'False');
         formData.append('eye_tracking', document.getElementById('eye_tracking').checked ? 'True' : 'False');
-        
+        formData.append('participant', document.getElementById('participant').value);
+
         fetch('/execute', {
             method: 'POST',
             body: formData

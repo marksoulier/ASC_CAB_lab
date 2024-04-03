@@ -2,8 +2,12 @@ import cv2
 import numpy as np
 import pandas as pd
 import time as time_module
-from elements import icon_background, center_content_on_background
-from helper_functions import check_content, place_icon_at_position, apply_red_tint
+from create_video.elements import icon_background, center_content_on_background
+from create_video.helper_functions import (
+    check_content,
+    place_icon_at_position,
+    apply_red_tint,
+)
 import os
 
 
@@ -19,6 +23,7 @@ def overlay_video(
     graph=True,
     save=True,
     show=True,
+    icons=None,
 ):
     """
     Args:
@@ -38,21 +43,21 @@ def overlay_video(
         Video of sensors overlayed on content
     """
     # load icons
-    icons = {
-        "Joy": "Custom_tool/icons/joy.png",
-        "Anger": "Custom_tool/icons/anger.png",
-        "Surprise": "Custom_tool/icons/surprise.png",
-        "Fear": "Custom_tool/icons/fear.png",
-        "Disgust": "Custom_tool/icons/disgust.png",
-        "Sadness": "Custom_tool/icons/sad.png",
-        "Contempt": "Custom_tool/icons/contempt.png",
-        "Frustration": "Custom_tool/icons/frustration.png",
-        "Confusion": "Custom_tool/icons/confusion.png",
-        "Neutral": "Custom_tool/icons/neutral.png",
-        "Heart": "Custom_tool/icons/heart_icon.png",
-        "GSR": "Custom_tool/icons/GSR.png",
-        "Pupil": "Custom_tool/icons/pupil.png",
-    }
+    # icons = {
+    #     "Joy": "create_video/icons/joy.png",
+    #     "Anger": "create_video/icons/anger.png",
+    #     "Surprise": "create_video/icons/surprise.png",
+    #     "Fear": "create_video/icons/fear.png",
+    #     "Disgust": "create_video/icons/disgust.png",
+    #     "Sadness": "create_video/icons/sad.png",
+    #     "Contempt": "create_video/icons/contempt.png",
+    #     "Frustration": "create_video/icons/frustration.png",
+    #     "Confusion": "create_video/icons/confusion.png",
+    #     "Neutral": "create_video/icons/neutral.png",
+    #     "Heart": "create_video/icons/heart_icon.png",
+    #     "GSR": "create_video/icons/GSR.png",
+    #     "Pupil": "create_video/icons/pupil.png",
+    # }
     # takeout medium column from data_with_peaks
     data = pd.read_csv(data_with_peaks)
     mediums = data["Medium"].unique()
@@ -173,7 +178,8 @@ def overlay_video(
     if save:
         # check if the video is already created and ask the user if they want to overwrite it
         if os.path.exists(f"{Participant}_overlayed_video.mp4"):
-            overwrite = input("Do you want to overwrite the video? (yes or no): ")
+            # overwrite = input("Do you want to overwrite the video? (yes or no): ")
+            overwrite = "yes"
             if overwrite == "no":
                 return
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
@@ -194,8 +200,7 @@ def overlay_video(
     print(f"Total time: {total_time:.2f} seconds")
     # continue to go through the loop as long as global time does not go over the total time
     while global_time < total_time:
-        if show:
-            print(f"{global_time:.2f}")
+        print(f"{global_time:.2f}")
         # set to data the is closest to the global time
         i = np.argmin(np.abs(np.array(time_continuous) * 1e6 - global_time))
         medium = content[Medium[i]]
@@ -224,7 +229,8 @@ def overlay_video(
                 )  # This assumes 'medium' is an image, so we just use it directly
             except:
                 print(f"Image Medium {Medium[i]} not found.")
-                break
+                return  # This assumes 'medium' is an image, so we just use it directly
+
         if eye_tracking:
             # Overlay the x and y coordinates on the image
 
