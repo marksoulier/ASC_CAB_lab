@@ -24,6 +24,7 @@ def overlay_video(
     save=True,
     show=True,
     icons=None,
+    update_progress=None,
 ):
     """
     Args:
@@ -201,6 +202,7 @@ def overlay_video(
     # continue to go through the loop as long as global time does not go over the total time
     while global_time < total_time:
         print(f"{global_time:.2f}")
+        update_progress(global_time / total_time * 100)
         # set to data the is closest to the global time
         i = np.argmin(np.abs(np.array(time_continuous) * 1e6 - global_time))
         medium = content[Medium[i]]

@@ -5,7 +5,7 @@ from create_video.video_overlay import overlay_video
 from create_video.create_peaks_graph import plot_peak_graph
 
 
-def create_video(content, toggles, participants, icons):
+def create_video(content, toggles, participants, icons, update_progress):
     """
     Input:
         eye_tracked_data: path to the eye tracking data
@@ -54,7 +54,7 @@ def create_video(content, toggles, participants, icons):
         # append on the peak values by adding peakPupil, peakConductance, peakHeartRate
         individual = append_peaks(ind, individual, stdPupil=1, stdGSR=1, stdHeartRate=1)
         ind += 1
-
+        update_progress(15)
         print("Creating Peaks Graph")
         # create peaks graph
         individual_graph = plot_peak_graph(
@@ -80,6 +80,7 @@ def create_video(content, toggles, participants, icons):
             show=toggles["show"],
             eye_tracking=toggles["eye_tracking"],
             icons=icons,
+            update_progress=update_progress,
         )
 
         if ind == 1:

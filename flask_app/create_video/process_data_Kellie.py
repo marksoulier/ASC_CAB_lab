@@ -105,7 +105,7 @@ def break_data(cleaned_data_path, clean_time=False):
         cleaned_data_path: File path to the cleaned data CSV with all the participants
         clean_time: Boolean indicating whether to convert time to continuous for each participant
     Returns:
-        respondents_file: List of file locations for each respondent's data
+        respondents_file: List of sets that contain user number, ID, and file locations for each respondent's data
     """
     # Load the CSV file using pandas
     cleaned_data = pd.read_csv(cleaned_data_path)
@@ -145,11 +145,16 @@ def break_data(cleaned_data_path, clean_time=False):
     if not os.path.exists("results/participants"):
         os.makedirs("results/participants")
 
-    respondents_file = []
+    respondents_files = []
     # save the df of each respondent to a new csv file
     for i, df in enumerate(modified_data_frames):
         save_file = os.path.join(save_dir, f"{i}_respondent_data.csv")
         df.to_csv(save_file, index=False)
-        respondents_file.append(save_file)
+        participant_info = {
+            "number": i,
+            "ID": df["Participant"].iloc[0],
+            "file": save_file,
+        }
+        respondents_files.append(participant_info)
 
-    return respondents_file
+    return respondents_files

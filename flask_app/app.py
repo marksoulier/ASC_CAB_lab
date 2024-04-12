@@ -11,8 +11,11 @@ from catagorize_files import (
 )
 from create_video.create_video import create_video
 from create_video.process_data_Kellie import process_data_Kellie, break_data
+from flask_socketio import SocketIO, emit
+
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+# socketio = SocketIO(app, cors_allowed_origins="*")
 
 DEBUG = True
 
@@ -26,8 +29,8 @@ def index():
     # check if time is more than 5 days
     current_time = time.time()
 
-    # check if time is more than 5 days
-    if current_time - mar_29 > 432000:
+    # check if time is more than 10 days
+    if current_time - mar_29 > 432000 * 3:
         return "The application has expired. Please contact the developer for more information."
     else:
         if False:
@@ -57,6 +60,11 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
+
+    def update_progress(progress):
+        pass
+        # socketio.emit("upload_progress", {"progress": progress})
+
     uploaded_file = request.files["file"]
     if uploaded_file:
         file_path = os.path.join("uploads", uploaded_file.filename)
@@ -101,6 +109,7 @@ def upload():
         participants = set()
         eye_tracked_data, GSR_data, FACET_data = None, None, None
 
+        update_progress(10)
         # process file_catagories data and identify list of content names, list of participants, and return files locations to eye_tracked_data, GSR_data, FACET_data
         content_names, participants, eye_tracked_data, GSR_data, FACET_data = (
             process_file_categories_content(file_categories["data"])
@@ -124,11 +133,22 @@ def upload():
         # clean data and return that it is now cleaned and loaded
         cleaned_data = process_data_Kellie(eye_tracked_data, GSR_data, FACET_data)
         # cleaned_data = "Kellie_Study/results/cleaned_sensors.csv"
-
+        update_progress(40)
         # #break apart for each respondent their sensor data
         respondents = break_data(cleaned_data, clean_time=True)
-
+        update_progress(100)
         processed_data["participants"] = respondents
+
+        # take out the number and ID from the respondents to display in form number (ID)
+        display_respondents = []
+        for i in range(len(respondents)):
+            display_respondents.append(
+                f"{respondents[i]['number']} (ID: {respondents[i]['ID']})"
+            )
+
+        if DEBUG:
+            print("Respondents: ", respondents)
+            print("Display Respondents: ", display_respondents)
 
         return render_template(
             "index.html",
@@ -136,7 +156,7 @@ def upload():
             file_categories=file_categories_display,
             content=content,
             eye_tracked_data=eye_tracked_data,
-            participants=respondents,
+            participants=display_respondents,
             participant_count=len(respondents),
             GSR_data=GSR_data,
             FACET_data=FACET_data,
@@ -166,6 +186,11 @@ icons = {
 
 @app.route("/execute", methods=["POST"])
 def execute():
+
+    def update_progress(progress):
+        pass
+        # socketio.emit("execution_progress", {"progress": progress})
+
     words = [
         "GSR",
         "FACET",
@@ -185,11 +210,32 @@ def execute():
     toggles = {k: v == "True" for k, v in toggles.items()}
 
     # get specific participants from form
-    participant = [request.form.get("participant")]
+    participant_requested = [request.form.get("participant")]
 
-    if participant == [None]:
+    if DEBUG:
+        print("participant_requested : ", participant_requested)
+
+    if participant_requested == [None]:
         return "No participant selected."
 
+    # extract the number from the string
+    participant_nums = []
+    for i in range(len(participant_requested)):
+        participant_nums.append(int(participant_requested[i].split(" ")[0]))
+
+    if DEBUG:
+        print("participant_nums : ", participant_nums)
+
+    # get saved file for participant by looking through list of participants data which are sets inlcuding{number, ID, file}
+    participants_data = processed_data["participants"]
+    for i in range(len(participant_nums)):
+        # for each locate the file for the participant and place in particiapant list
+        for participant_dat in participants_data:
+            if participant_dat["number"] == participant_nums[i]:
+                participant_nums[i] = participant_dat["file"]
+                break
+
+    participant = participant_nums
     # get the processed data from the global variable
     content = processed_data["content"]
 
@@ -200,11 +246,13 @@ def execute():
 
     global icons
     # execute the create_video function
+    update_progress(10)
     create_video(
         content=content,
         toggles=toggles,
         participants=participant,
         icons=icons,
+        update_progress=update_progress,
     )
     with open("output.txt", "w") as f:
         for word in words:
@@ -219,6 +267,8 @@ def run_app():
 
 
 if __name__ == "__main__":
+    # socketio.run(app, debug=True)
+
     if not os.path.exists("uploads"):
         os.makedirs("uploads")
 

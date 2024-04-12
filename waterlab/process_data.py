@@ -65,7 +65,7 @@ def process_date(data_file):
                 {
                     "Code": row["A"],
                     "Anumber": row["B"],
-                    "integer": row[char],
+                    "integer": int(row[char]),
                     "time": row[
                         (
                             "H"
@@ -84,7 +84,7 @@ def process_date(data_file):
     new_data = pd.concat([new_data, rows_to_append_df], ignore_index=True)
 
     # Format the 'date' column to MM/DD/YYYY
-    new_data["date"] = pd.to_datetime(new_data["date"]).dt.strftime("%m/%d/%Y")
+    new_data["date"] = pd.to_datetime(new_data["date"]).dt.strftime("%m/%d/%y")
 
     # Apply custom formatting to 'time' column
     new_data["time"] = new_data["time"].apply(format_number)
