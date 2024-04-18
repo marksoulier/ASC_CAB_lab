@@ -13,6 +13,15 @@ h1 {
     margin-bottom: 30px;
 }
 
+#uploadProgressBar {
+    width: 0%;        /* Starting width of the bar */
+    height: 20px;     /* Height of the bar */
+    background-color: #4CAF50; /* Color of the bar */
+    transition: width 0.1s ease-out; /* Smooth transition for width changes */
+}
+
+
+
 #toggleForm {
     margin-bottom: 30px;
 }
@@ -71,18 +80,20 @@ button:hover {
 .explanation ul li {
     margin-bottom: 10px;
 }
-
 .form-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column; /* Stack vertically */
+    padding: 20px;
+    border: 1px solid #ccc;
+    margin-top: 20px;
 }
 
 .file-upload-container {
     display: flex;
     align-items: center; /* Center the label and file name vertically */
-    gap: 10px; /* Add some space between the label and the file name */ /* Space before the upload button */
+    gap: 10px; /* Add some space between the label and the file name */
 }
 
 .file-label {
@@ -109,6 +120,14 @@ button:hover {
     cursor: pointer;
     font-size: 16px;
 }
+
+#uploadProgressBar {
+    width: 0%;        /* Starting width of the bar */
+    height: 20px;     /* Height of the bar */
+    background-color: #4CAF50; /* Color of the bar */
+    transition: width 0.1s ease-out; /* Smooth transition for width changes */
+}
+
 
 .upload-btn:hover {
     background-color: #218838;

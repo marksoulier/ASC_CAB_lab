@@ -30,7 +30,7 @@ def index():
     current_time = time.time()
 
     # check if time is more than 10 days
-    if current_time - mar_29 > 432000 * 3:
+    if current_time - mar_29 > 432000 * 4:
         return "The application has expired. Please contact the developer for more information."
     else:
         if False:
@@ -60,11 +60,7 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-
-    def update_progress(progress):
-        pass
-        # socketio.emit("upload_progress", {"progress": progress})
-
+    print("Uploading file...")
     uploaded_file = request.files["file"]
     if uploaded_file:
         file_path = os.path.join("uploads", uploaded_file.filename)
@@ -81,6 +77,8 @@ def upload():
                 )
 
                 file_categories = {"content": [], "data": [], "other": []}
+
+                print("Extracted files: ")
                 for file_name in zip_ref.namelist():
                     # Construct the full path for each extracted file
                     full_file_path = os.path.join(extracted_dir, file_name)
@@ -109,7 +107,6 @@ def upload():
         participants = set()
         eye_tracked_data, GSR_data, FACET_data = None, None, None
 
-        update_progress(10)
         # process file_catagories data and identify list of content names, list of participants, and return files locations to eye_tracked_data, GSR_data, FACET_data
         content_names, participants, eye_tracked_data, GSR_data, FACET_data = (
             process_file_categories_content(file_categories["data"])
@@ -133,10 +130,8 @@ def upload():
         # clean data and return that it is now cleaned and loaded
         cleaned_data = process_data_Kellie(eye_tracked_data, GSR_data, FACET_data)
         # cleaned_data = "Kellie_Study/results/cleaned_sensors.csv"
-        update_progress(40)
         # #break apart for each respondent their sensor data
         respondents = break_data(cleaned_data, clean_time=True)
-        update_progress(100)
         processed_data["participants"] = respondents
 
         # take out the number and ID from the respondents to display in form number (ID)
@@ -186,11 +181,6 @@ icons = {
 
 @app.route("/execute", methods=["POST"])
 def execute():
-
-    def update_progress(progress):
-        pass
-        # socketio.emit("execution_progress", {"progress": progress})
-
     words = [
         "GSR",
         "FACET",
@@ -246,13 +236,11 @@ def execute():
 
     global icons
     # execute the create_video function
-    update_progress(10)
     create_video(
         content=content,
         toggles=toggles,
         participants=participant,
         icons=icons,
-        update_progress=update_progress,
     )
     with open("output.txt", "w") as f:
         for word in words:

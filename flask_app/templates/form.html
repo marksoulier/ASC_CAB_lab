@@ -8,9 +8,34 @@
         </div>
         <button type="submit" class="upload-btn">Upload File</button>
     </form>
+    <div id="uploadProgressBar" style="width:0%; height: 20px; background-color: #4CAF50;"></div>
 </div>
 
 <script>
+document.getElementById('uploadForm').onsubmit = function(event) {
+    // Start the progress bar
+    startProgress();
+
+    // The form submission is not prevented; it will continue after this function
+};
+
+function startProgress() {
+    var progressBar = document.getElementById('uploadProgressBar');
+    var width = 0;
+    var totalTime = 30; // Duration in seconds for the progress bar to fill
+    var intervalTime = 100; // Interval time in milliseconds
+    var increment = intervalTime / (totalTime * 1000) * 100; // Calculate increment to reach 100% in the desired time
+
+    var interval = setInterval(function() {
+        if (width >= 100) {
+            clearInterval(interval);
+        } else {
+            width += increment;
+            progressBar.style.width = width + '%';
+        }
+    }, intervalTime);
+}
+
 function updateFileName() {
     var input = document.getElementById('file');
     var fileNameSpan = document.getElementById('file-name');
@@ -103,6 +128,7 @@ function updateFileName() {
         <input type="checkbox" name="eye_tracking" id="eye_tracking">
     </label><br>
     <button type="button" onclick="execute()">Create Video</button>
+    <div id="executeProgressBar" style="width:0%; height: 20px; background-color: #4CAF50;"></div>
 </form>
 {% endif %}
 <script>
