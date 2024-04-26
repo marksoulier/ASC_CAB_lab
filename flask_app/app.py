@@ -5,14 +5,15 @@ import threading
 import time
 import zipfile
 from catagorize_files import (
-    categorize_file,
     process_file_categories_content,
     get_content,
 )
 from create_video.create_video import create_video
 from create_video.process_data_Kellie import process_data_Kellie, break_data
-from flask_socketio import SocketIO, emit
 
+# from flask_socketio import SocketIO, emit
+from sort_data import sort_data, categorize_file
+from clean_data import clean_data
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 # socketio = SocketIO(app, cors_allowed_origins="*")
@@ -30,8 +31,8 @@ def index():
     current_time = time.time()
 
     # check if time is more than 10 days
-    if current_time - mar_29 > 432000 * 4:
-        return "The application has expired. Please contact the developer for more information."
+    if current_time - mar_29 > 432000 * 300:
+        return "This application has expired. Please contact the developer for more information."
     else:
         if False:
             file_counts = {"content": 0, "data": 0, "other": 0}
@@ -65,72 +66,41 @@ def upload():
     if uploaded_file:
         file_path = os.path.join("uploads", uploaded_file.filename)
         uploaded_file.save(file_path)
+        # sort data and output a dictionary that contains list of files paths to content, data, and other
+        ##################################################################### SORT DATA
+        file_categories = sort_data(file_path)
+        #####################################################################
 
-        if zipfile.is_zipfile(file_path):
-            extracted_dir = os.path.join(
-                "uploads", os.path.splitext(uploaded_file.filename)[0]
-            )
-            with zipfile.ZipFile(file_path, "r") as zip_ref:
-                # Extract files to 'uploads' directory
-                zip_ref.extractall(
-                    os.path.join("uploads", os.path.splitext(uploaded_file.filename)[0])
-                )
+        # clean data, takes in list of data files and compiles them into a single
+        ##################################################################### CLEAN DATA
+        data_files = file_categories["data"]
+        if len(data_files) == 0:
+            return "No data files found."
 
-                file_categories = {"content": [], "data": [], "other": []}
+        # Call the clean_data function and handle its outputs
+        cleaned_data, participants, stimulus_names = clean_data(data_files)
 
-                print("Extracted files: ")
-                for file_name in zip_ref.namelist():
-                    # Construct the full path for each extracted file
-                    full_file_path = os.path.join(extracted_dir, file_name)
-
-                    # Here you can replace 'categorize_file' with the logic to categorize your files
-                    category = categorize_file(file_name)
-                    # Append the full file path instead of just the file name
-                    file_categories[category].append(full_file_path)
-
-                # Display only the first 5 files in each category
-                file_categories_display = dict()
-
-                # Limit display to first 5 files in each category
-                for category in file_categories:
-                    file_categories_display[category] = file_categories[category][:5]
-
-                # Count files in each category
-                file_counts = {k: len(v) for k, v in file_categories.items()}
-                print("File Categories: ", file_categories)
-                print("File Counts: ", file_counts)
-        else:
-            return "Uploaded file is not a ZIP archive."
-
-        # create storage variabels
-        content_names = set()
-        participants = set()
-        eye_tracked_data, GSR_data, FACET_data = None, None, None
-
-        # process file_catagories data and identify list of content names, list of participants, and return files locations to eye_tracked_data, GSR_data, FACET_data
-        content_names, participants, eye_tracked_data, GSR_data, FACET_data = (
-            process_file_categories_content(file_categories["data"])
-        )
-        # get content dictionary that links content names to file locations
-        content = get_content(file_categories["content"], content_names)
-
-        print("Content Names: ", content_names)
-        print("Participants: ", participants)
-        print("Eye Tracked Data: ", eye_tracked_data)
-        print("GSR Data: ", GSR_data)
-        print("FACET Data: ", FACET_data)
-        print("Content: ", content)
-
-        global processed_data
         # Add processed data to global variable
-        processed_data["content"] = content
 
         if DEBUG:
-            print("Cleaning the data")
-        # clean data and return that it is now cleaned and loaded
-        cleaned_data = process_data_Kellie(eye_tracked_data, GSR_data, FACET_data)
-        # cleaned_data = "Kellie_Study/results/cleaned_sensors.csv"
-        # #break apart for each respondent their sensor data
+            print("Cleaned the data")
+            print("Participants: ", participants)
+            print("Stimulus Names: ", stimulus_names)
+
+        #################################################################### Match Content
+        # takes in stimlus names and content_files and matches them to content
+        global processed_data  # save info for other functions
+        try:
+            content = get_content(file_categories["content"], stimulus_names)
+            processed_data["content"] = content
+        except:
+            content = {"No Content": "Upload your stimuls files to create videos."}
+            processed_data["content"] = None
+        ####################################################################
+
+        #################################################################### BREAK DATA
+
+        # Break data, this breaks apart the data #####################
         respondents = break_data(cleaned_data, clean_time=True)
         processed_data["participants"] = respondents
 
@@ -140,21 +110,29 @@ def upload():
             display_respondents.append(
                 f"{respondents[i]['number']} (ID: {respondents[i]['ID']})"
             )
+        ##############################################################
 
+        # final results of process data
         if DEBUG:
             print("Respondents: ", respondents)
             print("Display Respondents: ", display_respondents)
+
+        # Display data to screen
+        # Display the file counts and categories
+        file_counts = {k: len(v) for k, v in file_categories.items()}
+        # display the first 5 of each category
+        file_categories_display = {
+            k: v[:5] if len(v) > 5 else v for k, v in file_categories.items()
+        }
 
         return render_template(
             "index.html",
             file_counts=file_counts,
             file_categories=file_categories_display,
             content=content,
-            eye_tracked_data=eye_tracked_data,
             participants=display_respondents,
             participant_count=len(respondents),
-            GSR_data=GSR_data,
-            FACET_data=FACET_data,
+            data_files=data_files,
         )
     return "No file uploaded."
 
@@ -176,6 +154,7 @@ icons = {
     "Heart": os.path.join(ICONS_DIR, "heart_icon.png"),
     "GSR": os.path.join(ICONS_DIR, "GSR.png"),
     "Pupil": os.path.join(ICONS_DIR, "pupil.png"),
+    "Blink": os.path.join(ICONS_DIR, "blink.png"),
 }
 
 
@@ -183,6 +162,7 @@ icons = {
 def execute():
     words = [
         "GSR",
+        "Blink",
         "FACET",
         "Pupil",
         "HeartRate",
@@ -227,31 +207,36 @@ def execute():
 
     participant = participant_nums
     # get the processed data from the global variable
-    content = processed_data["content"]
+    try:
+        content = processed_data["content"]
 
-    if DEBUG:
-        print(toggles)
-        print(participant)
-        print(content)
+        if DEBUG:
+            print(toggles)
+            print(participant)
+            print(content)
 
-    global icons
-    # execute the create_video function
-    create_video(
-        content=content,
-        toggles=toggles,
-        participants=participant,
-        icons=icons,
-    )
-    with open("output.txt", "w") as f:
-        for word in words:
-            state = request.form.get(word, "False")
-            f.write(f"{word}={state}\n")
+        global icons
+        # execute the create_video function
+        create_video(
+            content=content,
+            toggles=toggles,
+            participants=participant,
+            icons=icons,
+        )
+    except Exception as e:
+        app.logger.error(
+            f"Failed to create video: {e}"
+        )  # Log error to Flask's built-in logger
+        return f"An error occurred: {str(e)}"
 
     return "Execution complete. Output written to output.txt."
 
 
 def run_app():
-    app.run(debug=True, use_reloader=False)
+    try:
+        app.run(debug=True, use_reloader=False)
+    except Exception as e:
+        app.logger.error(f"Failed: {e}")
 
 
 if __name__ == "__main__":

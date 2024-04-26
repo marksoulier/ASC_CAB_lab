@@ -11,10 +11,11 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
 def format_number(x):
-    if x < 0:
-        formatted = "{:09.2f}".format(-x) + "-"
+    x_rounded = round(x, 2)  # Round x to two decimal places
+    if x_rounded < 0:
+        formatted = "{:09.2f}".format(-x_rounded) + "-"
     else:
-        formatted = "{:010.3f}".format(x)
+        formatted = "{:010.3f}".format(x_rounded)
     return formatted
 
 
@@ -33,7 +34,7 @@ def process_data(data_files):
         for index, row in data.iterrows():
             # inplement specific special cases
             # if column["C"] is a number and column["D"] is a Nan
-            if math.isnan(row["D"]) and not math.isnan(row["C"]):
+            if math.isnan(row["D"]) and not math.isnan(row["C"]) and (row["G"] != 0):
                 rows_to_append.append(
                     {
                         "Code": row["A"],
@@ -44,7 +45,7 @@ def process_data(data_files):
                     }
                 )
             # else if column["C"] is a Nan and column["D"] is a number
-            elif math.isnan(row["C"]) and not math.isnan(row["D"]):
+            elif math.isnan(row["C"]) and not math.isnan(row["D"]) and (row["G"] != 0):
                 rows_to_append.append(
                     {
                         "Code": row["A"],
@@ -58,6 +59,7 @@ def process_data(data_files):
                 math.isnan(row["C"])
                 and math.isnan(row["D"])
                 and not math.isnan(row["E"])
+                and (row["G"] != 0)
             ):
                 rows_to_append.append(
                     {
@@ -68,23 +70,24 @@ def process_data(data_files):
                         "date": row["L"],
                     }
                 )
-            elif (
-                math.isnan(row["C"])
-                and math.isnan(row["D"])
-                and math.isnan(row["E"])
-                and not math.isnan(row["F"])
-            ):
-                rows_to_append.append(
-                    {
-                        "Code": row["A"],
-                        "Anumber": row["B"],
-                        "integer": int(row["F"]),
-                        "time": row["G"],
-                        "date": row["L"],
-                    }
-                )
-            else:
-                print()
+            # For now dont implement for 4th column
+            # elif (
+            #     math.isnan(row["C"])
+            #     and math.isnan(row["D"])
+            #     and math.isnan(row["E"])
+            #     and not math.isnan(row["F"])
+            #     and (row["G"] != 0)
+            # ):
+            #     rows_to_append.append(
+            #         {
+            #             "Code": row["A"],
+            #             "Anumber": row["B"],
+            #             "integer": int(row["F"]),
+            #             "time": row["G"],
+            #             "date": row["L"],
+            #         }
+            #     )
+            elif row["G"] != 0:
                 for char in iterate:
                     if math.isnan(row[char]):
                         continue
@@ -124,10 +127,12 @@ def process_data(data_files):
         "%m/%d/%y"
     )
     aggregated_data["time"] = aggregated_data["time"].apply(format_number)
-    aggregated_data = aggregated_data.sort_values(by="integer")
+    # aggregated_data = aggregated_data.sort_values(by="Anumber")
 
     if data_files:  # Ensure there is at least one file to name the output after
-        output_filename = data_files[0].split("/")[-1].split(".")[0] + "_aggregated.dat"
+        output_filename = (
+            data_files[0].split("/")[-1].split(".")[0] + "_aggregated1.dat"
+        )
         aggregated_data.to_csv(
             output_filename, sep="\t", header=False, index=False, encoding="cp1252"
         )

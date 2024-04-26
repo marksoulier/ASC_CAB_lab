@@ -24,6 +24,7 @@ def overlay_video(
     save=True,
     show=True,
     icons=None,
+    Blink=False,
     update_progress=None,
 ):
     """
@@ -62,7 +63,10 @@ def overlay_video(
     # takeout medium column from data_with_peaks
     data = pd.read_csv(data_with_peaks)
     mediums = data["Medium"].unique()
-    check_content(content, mediums)
+    try:
+        check_content(content, mediums)
+    except:
+        print("Content does not match the data.")
 
     # set paramters for video
     frame_width = 1920
@@ -134,6 +138,8 @@ def overlay_video(
     if HeartRate:
         heart_rate = data["HR"]
         heart_rate_peaks = data["HRPeaks"]
+    if Blink:
+        blink = data["Blink"]
     if FACET:
         # load the FACET data
         facet = data[
@@ -204,7 +210,12 @@ def overlay_video(
         print(f"{global_time:.2f}")
         # set to data the is closest to the global time
         i = np.argmin(np.abs(np.array(time_continuous) * 1e6 - global_time))
-        medium = content[Medium[i]]
+
+        if Medium[i] not in content:
+            # make a black image
+            medium = np.zeros((frame_height, frame_width, 3), dtype=np.uint8)
+        else:
+            medium = content[Medium[i]]
         # check if medium is a video or an image
         if type(medium) == cv2.VideoCapture:
             ret, frame = medium.read()
@@ -279,6 +290,26 @@ def overlay_video(
             #         keep_red_tint_on = False
             #         red_tint_counter = 0
 
+        if Blink:
+            # overlay the blink icon on the image
+            # load the blink icon
+            blink_icon = sensor_icons["Blink"]
+            # place the blink icon on the image in topc center
+            place_icon_at_position(
+                frame, blink_icon, frame_width - icon_size - 40, 0, icon_size
+            )
+            # place the blink size in the rectangle
+            cv2.putText(
+                frame,
+                f"{blink[i]}",
+                (frame_width - 50, 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (255, 255, 255),
+                2,
+                cv2.LINE_AA,
+            )
+
         # Modify the FACET part within the loop to arrange icons on the background and overlay it on the frame
         if FACET:
             # inicilize blank previous coloration values
@@ -307,9 +338,9 @@ def overlay_video(
                 )
 
                 # Retrieve the coloration value for the current icon/emotion
-                coloration = facet_values[
-                    idx
-                ]  # Assuming the order of facet_values matches the emoji_icons order
+                coloration = (
+                    facet_values[idx] * 3
+                )  # Assuming the order of facet_values matches the emoji_icons order
 
                 # if coloration is NaN, set it to 0
                 if np.isnan(coloration):
@@ -413,7 +444,7 @@ def overlay_video(
 
         global_time += frame_delay
 
-        if True:
+        if False:
             # display the time in the bottem center
             cv2.putText(
                 frame,
@@ -461,6 +492,7 @@ if __name__ == "__main__":
         content,
         graph_file="Kellie_Study/results/participants_peak_graph/0_peak_graph.png",
         GSR=True,
+        Blink=True,
         FACET=True,
         Pupil=True,
         HeartRate=True,

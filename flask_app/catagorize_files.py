@@ -1,23 +1,6 @@
 import os
-
-
-# Helper function to determine the category of a file
-def categorize_file(filename):
-    content_extensions = [".jpg", ".jpeg", ".png", ".gif", ".mp4", ".avi"]
-    data_extensions = [".csv", ".xlsx", ".xls", ".txt"]
-
-    extension = os.path.splitext(filename)[1].lower()
-    if extension in content_extensions:
-        return "content"
-    elif extension in data_extensions:
-        return "data"
-    else:
-        return "other"
-
-
 from fuzzywuzzy import process
 import pandas as pd
-import os
 
 
 def assign_best_matches(categories_keywords, choices, threshold=40):

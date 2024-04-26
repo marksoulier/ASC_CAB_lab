@@ -10,15 +10,22 @@
 </head>
 <body>
     <h1>Welcome to CAB Lab Video Tool</h1>
-    <p>Welcome to the CAB Lab Video Tool, a user-friendly interface designed to transform iMotion data into engaging video content.</p>
-    <p>The purpose of this website is to provide a seamless experience for users to input their iMotion data and generate a video output. With our tool, you can easily create videos that incorporate live data streams from iMotion devices.</p>
-    <p>Whether you're conducting research, analyzing human behavior, or simply exploring the possibilities of iMotion technology, our platform empowers you to visualize your data in a compelling and informative way.</p>
-    <p>Get started today and unlock the potential of your iMotion data!</p>
+    <p>This tool is used to provide a first glance at the data from the CAB Lab.</p>
+    <p>Upload a zip file containing data files of a single participants raw csv files downloaded from iMotions</p>
     <hr>
     <h2>Clean your Data</h2>
     {% include 'form.html' %}
     <hr>
     <h2>Example of Video Creation Software</h2>
     {% include 'example.html' %}
+    <hr>
+    <h2>Data Processing used by the video creator</h2>
+    <div class="pdf-container">
+        <iframe src="{{ url_for('static', filename='ASC_Peak_Processing.pdf')}}" class="pdf-viewer"></iframe>
+    </div>
+    <h2>Software overview</h2>
+    <div class="pdf-container">
+        <iframe src="{{ url_for('static', filename='ASC_Custom_Tool_Explaination.pdf')}}" class="pdf-viewer"></iframe>
+    </div>
 </body>
 </html>

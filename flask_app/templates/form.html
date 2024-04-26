@@ -19,10 +19,34 @@ document.getElementById('uploadForm').onsubmit = function(event) {
     // The form submission is not prevented; it will continue after this function
 };
 
+document.getElementById('toggleForm').onsubmit = function(event) {
+    // Start the progress bar
+    startProgress2();
+
+    // The form submission is not prevented; it will continue after this function
+};
+
 function startProgress() {
     var progressBar = document.getElementById('uploadProgressBar');
     var width = 0;
-    var totalTime = 30; // Duration in seconds for the progress bar to fill
+    var totalTime = 120; // Duration in seconds for the progress bar to fill
+    var intervalTime = 100; // Interval time in milliseconds
+    var increment = intervalTime / (totalTime * 1000) * 100; // Calculate increment to reach 100% in the desired time
+
+    var interval = setInterval(function() {
+        if (width >= 100) {
+            clearInterval(interval);
+        } else {
+            width += increment;
+            progressBar.style.width = width + '%';
+        }
+    }, intervalTime);
+}
+
+function startProgress2() {
+    var progressBar = document.getElementById('executeProgressBar');
+    var width = 0;
+    var totalTime = 200; // Duration in seconds for the progress bar to fill
     var intervalTime = 100; // Interval time in milliseconds
     var increment = intervalTime / (totalTime * 1000) * 100; // Calculate increment to reach 100% in the desired time
 
@@ -73,9 +97,9 @@ function updateFileName() {
 
         <hr>
         <h2>Data Files</h2>
-        <p>Eye Tracked Data: {{ eye_tracked_data }}</p>
-        <p>GSR Data: {{ GSR_data }}</p>
-        <p>FACET Data: {{ FACET_data }}</p>
+        {% for data_file in data_files %}
+            <p>{{ data_file }}</p>
+        {% endfor %}
 
         <hr>
     {% endif %}
@@ -104,6 +128,10 @@ function updateFileName() {
         <input type="checkbox" name="FACET" id="FACET">
     </label><br>
     <label>
+        Blink:
+        <input type="checkbox" name="Blink" id="Blink">
+    </label><br>
+    <label>
         Pupil:
         <input type="checkbox" name="Pupil" id="Pupil">
     </label><br>
@@ -127,14 +155,14 @@ function updateFileName() {
         eye_tracking:
         <input type="checkbox" name="eye_tracking" id="eye_tracking">
     </label><br>
-    <button type="button" onclick="execute()">Create Video</button>
-    <div id="executeProgressBar" style="width:0%; height: 20px; background-color: #4CAF50;"></div>
-</form>
+    <button type="button" onclick="execute()">Create Video</button></form>
+    <div id="executeProgressBar" style="width:0%; height: 20px; background-color: #001dfc;"></div>
 {% endif %}
 <script>
     function execute() {
         var formData = new FormData();
         formData.append('GSR', document.getElementById('GSR').checked ? 'True' : 'False');
+        formData.append('Blink', document.getElementById('Blink').checked ? 'True' : 'False');
         formData.append('FACET', document.getElementById('FACET').checked ? 'True' : 'False');
         formData.append('Pupil', document.getElementById('Pupil').checked ? 'True' : 'False');
         formData.append('HeartRate', document.getElementById('HeartRate').checked ? 'True' : 'False');

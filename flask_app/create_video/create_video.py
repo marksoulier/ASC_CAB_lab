@@ -52,7 +52,13 @@ def create_video(content, toggles, participants, icons):
 
         print("Appending Peaks")
         # append on the peak values by adding peakPupil, peakConductance, peakHeartRate
-        individual = append_peaks(ind, individual, stdPupil=1, stdGSR=1, stdHeartRate=1)
+        try:
+            individual = append_peaks(
+                ind, individual, stdPupil=1, stdGSR=1, stdHeartRate=1
+            )
+        except Exception as e:
+            print("Error appending peaks:", str(e))
+
         ind += 1
         print("Creating Peaks Graph")
         # create peaks graph
@@ -71,6 +77,7 @@ def create_video(content, toggles, participants, icons):
             content,
             graph_file=individual_graph,
             GSR=toggles["GSR"],
+            Blink=toggles["Blink"],
             FACET=toggles["FACET"],
             Pupil=toggles["Pupil"],
             HeartRate=toggles["HeartRate"],
